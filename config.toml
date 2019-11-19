@@ -1,0 +1,6 @@
+baseURL = "hote.github.com"
+languageCode = "zh-tw"
+title = "amos-vwr"
+theme = "blogophonic"
+
+
