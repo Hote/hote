@@ -1,0 +1,39 @@
+version: 2
+global: &global
+  working_directory: ~/project
+  docker:
+    - image: felicianotech/docker-hugo:0.30.2
+
+jobs:
+  build_n_deploy:
+    <<: *global
+    steps:
+      - checkout
+      - run:
+          name: "Run Hugo"
+          command: |
+            git submodule sync && git submodule update --init 
+            git submodule foreach --recursive git pull origin master
+            HUGO_ENV=production hugo -v
+
+      - add_ssh_keys:
+          fingerprints:
+            - "44:4d:07:a8:35:...fingerprint_of_key"
+      - run:
+          name: "Deploy to github.io"       
+          command: |
+            cd ~/project/public
+            git config --global user.email "you@email.com"
+            git config --global user.name "First Last"
+            git add -A
+            git commit -m "Deploy from CircleCI"
+            git push origin HEAD:master
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build_n_deploy:
+          filters:
+            branches:
+              only: master
